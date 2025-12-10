@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feest Reservering</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
 body {
     font-family:'Poppins',sans-serif;
@@ -25,12 +26,27 @@ body {
     max-width:500px;
     animation:fadeIn 0.7s ease-in-out;
 }
-@keyframes fadeIn {from {opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-h2{text-align:center;color:#e52e71;font-size:28px;margin-bottom:20px;}
-label{font-weight:600;margin-top:10px;display:block;}
-input,select{width:100%;padding:12px;margin-top:5px;border-radius:8px;border:1px solid #ccc;font-size:15px;transition:0.3s;}
-input:focus,select:focus{border-color:#e52e71;outline:none;box-shadow:0 0 5px rgba(229,46,113,0.5);}
-button{
+@keyframes fadeIn {
+    from {opacity:0;transform:translateY(20px);}
+    to {opacity:1;transform:translateY(0);}
+}
+h2 {
+    text-align:center;
+    color:#e52e71;
+    font-size:28px;
+    margin-bottom:20px;
+}
+label {font-weight:600;margin-top:10px;display:block;}
+input,select {
+    width:100%;
+    padding:12px;
+    margin-top:5px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:15px;
+    transition:0.3s;
+}
+button {
     width:100%;
     margin-top:20px;
     padding:14px;
@@ -41,36 +57,53 @@ button{
     font-weight:600;
     border-radius:10px;
     cursor:pointer;
-    transition:0.3s;
 }
-button:hover{transform:scale(1.02);box-shadow:0 5px 20px rgba(229,46,113,0.4);}
-#resultaat,#succesBox{margin-top:20px;font-size:16px;font-weight:600;color:#444;text-align:center;padding:20px;border-radius:10px;display:none;}
-#succesBox{background:#e8ffe6;border-left:6px solid #00b300;}
+#resultaat,#succesBox {
+    margin-top:20px;
+    font-size:16px;
+    font-weight:600;
+    color:#444;
+    text-align:center;
+    padding:20px;
+    border-radius:10px;
+    display:none;
+}
+#succesBox {
+    background:#e8ffe6;
+    border-left:6px solid #00b300;
+}
 </style>
 </head>
-<body>
 
+<body>
 <div class="container" id="mainForm">
 <h2>🎉 Feest Reservering</h2>
+
 <form id="form">
 <label>Stad:</label>
 <select id="stad">
-<option>Amsterdam</option>
-<option>Rotterdam</option>
-<option>Utrecht</option>
-<option>Maastricht</option>
+    <option>Amsterdam</option>
+    <option>Rotterdam</option>
+    <option>Utrecht</option>
+    <option>Maastricht</option>
 </select>
+
 <label>Datum:</label>
 <input type="date" id="datum">
+
 <label>Feest naam:</label>
 <input type="text" id="feest_naam" placeholder="Bijv. Verjaardag">
+
 <label>Aantal personen:</label>
 <input type="number" id="aantal" placeholder="Bijv. 5">
+
 <label>Namen van aanwezigen:</label>
 <input type="text" id="namen" placeholder="Bijv. Ali, Omar, Sara">
+
 <label>Betalen (Ja/Nee):</label>
 <input type="text" id="betalen" placeholder="Ja of Nee">
 </form>
+
 <button onclick="verstuur()">Reserveren</button>
 <div id="resultaat"></div>
 </div>
@@ -82,7 +115,6 @@ button:hover{transform:scale(1.02);box-shadow:0 5px 20px rgba(229,46,113,0.4);}
 </div>
 
 <script>
-// الرابط الصحيح لـ Flask API على PythonAnywhere
 const API_URL = "https://adelsl924.pythonanywhere.com/reserveer";
 
 function verstuur() {
