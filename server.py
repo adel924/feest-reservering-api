@@ -4,7 +4,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-PRIJS_PER_PERSOON = 1500  # Prijs per persoon in euro
+PRIJS_PER_PERSOON = 1500  # prijs per persoon in euro
 
 @app.route("/reserveer", methods=["POST"])
 def reserveer():
@@ -28,7 +28,6 @@ def reserveer():
 
     totaal = aantal_personen * PRIJS_PER_PERSOON
 
-    # Print ontvangen gegevens in de terminal
     print("Ontvangen data:", data)
 
     return jsonify({
