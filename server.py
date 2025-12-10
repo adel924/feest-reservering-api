@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-Prijs_per_person = 1500  # prijs per persoon
+PRIJS_PER_PERSOON = 1500  # Prijs per persoon in euro
 
 @app.route("/reserveer", methods=["POST"])
 def reserveer():
@@ -17,19 +16,20 @@ def reserveer():
     datum = data.get("datum", "")
     feest_naam = data.get("feest_naam", "")
     namen = data.get("namen", "")
-    betalen = data.get("betalen", "")
 
     try:
         aantal_personen = int(data.get("aantal_personen", 0))
-    except ValueError:
+    except:
         return jsonify({"status": "error", "melding": "Aantal personen ongeldig"}), 400
 
-    if betalen.lower() != "ja":
+    betalen = data.get("betalen", "").lower()
+    if betalen != "ja":
         return jsonify({"status": "geannuleerd", "melding": "❌ U wilt niet betalen."})
 
-    totaal = aantal_personen * Prijs_per_person
+    totaal = aantal_personen * PRIJS_PER_PERSOON
 
-    print("Nieuwe reservering ontvangen:", data)
+    # Print ontvangen gegevens in de terminal
+    print("Ontvangen data:", data)
 
     return jsonify({
         "status": "succes",
@@ -38,10 +38,11 @@ def reserveer():
         "feest_naam": feest_naam,
         "aantal_personen": aantal_personen,
         "namen": namen,
-        "totaal": totaal,
+        "totaal": f"€{totaal}",
         "melding": "✔️ De reservering is succesvol."
     })
 
 if __name__ == "__main__":
+    import os
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
