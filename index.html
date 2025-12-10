@@ -1,168 +1,68 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feest Reservering</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-<style>
-body {
-    font-family:'Poppins',sans-serif;
-    background:linear-gradient(135deg,#ff8a00,#e52e71);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
-    padding:20px;
-}
-.container {
-    background:white;
-    padding:30px;
-    border-radius:15px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.2);
-    width:100%;
-    max-width:500px;
-    animation:fadeIn 0.7s ease-in-out;
-}
-@keyframes fadeIn {
-    from {opacity:0;transform:translateY(20px);}
-    to {opacity:1;transform:translateY(0);}
-}
-h2 {
-    text-align:center;
-    color:#e52e71;
-    font-size:28px;
-    margin-bottom:20px;
-}
-label {font-weight:600;margin-top:10px;display:block;}
-input,select {
-    width:100%;
-    padding:12px;
-    margin-top:5px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:15px;
-    transition:0.3s;
-}
-button {
-    width:100%;
-    margin-top:20px;
-    padding:14px;
-    background:linear-gradient(135deg,#ff8a00,#e52e71);
-    border:none;
-    color:white;
-    font-size:18px;
-    font-weight:600;
-    border-radius:10px;
-    cursor:pointer;
-}
-#resultaat,#succesBox {
-    margin-top:20px;
-    font-size:16px;
-    font-weight:600;
-    color:#444;
-    text-align:center;
-    padding:20px;
-    border-radius:10px;
-    display:none;
-}
-#succesBox {
-    background:#e8ffe6;
-    border-left:6px solid #00b300;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>حجز الحفلة</title>
 </head>
-
 <body>
-<div class="container" id="mainForm">
-<h2>🎉 Feest Reservering</h2>
+    <h2>نموذج الحجز</h2>
 
-<form id="form">
-<label>Stad:</label>
-<select id="stad">
-    <option>Amsterdam</option>
-    <option>Rotterdam</option>
-    <option>Utrecht</option>
-    <option>Maastricht</option>
-</select>
+    <label>المدينة:</label>
+    <input id="stad"><br><br>
 
-<label>Datum:</label>
-<input type="date" id="datum">
+    <label>التاريخ:</label>
+    <input id="datum" type="date"><br><br>
 
-<label>Feest naam:</label>
-<input type="text" id="feest_naam" placeholder="Bijv. Verjaardag">
+    <label>اسم الحفلة:</label>
+    <input id="feest_naam"><br><br>
 
-<label>Aantal personen:</label>
-<input type="number" id="aantal" placeholder="Bijv. 5">
+    <label>عدد الأشخاص:</label>
+    <input id="aantal_personen" type="number"><br><br>
 
-<label>Namen van aanwezigen:</label>
-<input type="text" id="namen" placeholder="Bijv. Ali, Omar, Sara">
+    <label>الأسماء:</label>
+    <textarea id="namen"></textarea><br><br>
 
-<label>Betalen (Ja/Nee):</label>
-<input type="text" id="betalen" placeholder="Ja of Nee">
-</form>
+    <label>هل تريد الدفع؟</label>
+    <select id="betalen">
+        <option value="ja">نعم</option>
+        <option value="nee">لا</option>
+    </select><br><br>
 
-<button onclick="verstuur()">Reserveren</button>
-<div id="resultaat"></div>
-</div>
+    <button onclick="reserveer()">احجز الآن</button>
 
-<div class="container" id="succesBox">
-<h2>✔️ Reservering Geslaagd!</h2>
-<p id="details"></p>
-<button onclick="terugNaarForm()">Maak nieuwe reservering</button>
-</div>
+    <p id="resultaat"></p>
 
-<script>
-const API_URL = "https://adelsl924.pythonanywhere.com/reserveer";
+    <script>
+    const API_URL = "https://adelsl924.pythonanywhere.com/reserveer";
 
-function verstuur() {
-    const data = {
-        stad: document.getElementById("stad").value,
-        datum: document.getElementById("datum").value,
-        feest_naam: document.getElementById("feest_naam").value,
-        aantal_personen: document.getElementById("aantal").value,
-        namen: document.getElementById("namen").value,
-        betalen: document.getElementById("betalen").value
-    };
+    async function reserveer() {
+        const data = {
+            stad: document.getElementById("stad").value,
+            datum: document.getElementById("datum").value,
+            feest_naam: document.getElementById("feest_naam").value,
+            aantal_personen: document.getElementById("aantal_personen").value,
+            namen: document.getElementById("namen").value,
+            betalen: document.getElementById("betalen").value
+        };
 
-    fetch(API_URL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    })
-    .then(r => r.json())
-    .then(res => {
-        if (res.status === "succes") {
-            document.getElementById("mainForm").style.display = "none";
-            document.getElementById("succesBox").style.display = "block";
-            document.getElementById("details").innerHTML = `
-                <strong>Stad:</strong> ${res.stad}<br>
-                <strong>Datum:</strong> ${res.datum}<br>
-                <strong>Feest naam:</strong> ${res.feest_naam}<br>
-                <strong>Namen:</strong> ${res.namen}<br>
-                <strong>Aantal personen:</strong> ${res.aantal_personen}<br>
-                <strong>Totaal bedrag:</strong> ${res.totaal}
-            `;
-        } else {
-            document.getElementById("resultaat").style.display = "block";
-            document.getElementById("resultaat").innerHTML = res.melding;
+        const resultaat = document.getElementById("resultaat");
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+
+            const res = await response.json();
+            resultaat.innerText = res.melding +
+                (res.totaal ? " - المجموع: " + res.totaal : "");
+
+        } catch (error) {
+            resultaat.innerText = "خطأ: لا يمكن الاتصال بالسيرفر.";
         }
-    })
-    .catch(err => {
-        document.getElementById("resultaat").style.display = "block";
-        document.getElementById("resultaat").innerHTML = "❌ Er is een fout opgetreden: " + err;
-    });
-}
-
-function terugNaarForm() {
-    document.getElementById("mainForm").style.display = "block";
-    document.getElementById("succesBox").style.display = "none";
-    document.getElementById("form").reset();
-    document.getElementById("resultaat").style.display = "none";
-}
-</script>
+    }
+    </script>
 
 </body>
 </html>
