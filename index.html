@@ -2,49 +2,141 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feest Reservering</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg,#ff8a00,#e52e71); display:flex; justify-content:center; align-items:center; height:100vh; margin:0 }
-.container{background:white;padding:30px;border-radius:15px;box-shadow:0 10px 40px rgba(0,0,0,0.2);width:100%;max-width:480px}
-label{display:block;margin-top:10px;font-weight:600}
-input,select{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
-button{width:100%;padding:12px;margin-top:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#ff8a00,#e52e71);color:#fff;font-weight:700;cursor:pointer}
-button:hover { opacity:0.9; }
-#resultaat{display:none;margin-top:12px;padding:12px;background:#ffe6e6;border-radius:8px;color:#a00}
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ff8a00, #e52e71);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 480px;
+}
+h2 {
+    text-align: center;
+    color: #e52e71;
+    margin-bottom: 20px;
+}
+label {
+    font-weight: 600;
+    margin-top: 10px;
+    display: block;
+}
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+input:focus, select:focus {
+    border-color: #e52e71;
+    outline: none;
+    box-shadow: 0 0 5px rgba(229,46,113,0.5);
+}
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: linear-gradient(135deg, #ff8a00, #e52e71);
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(229,46,113,0.4);
+}
+#resultaat {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    display: none;
+    background: #ffe6e6;
+}
 </style>
 </head>
 <body>
 <div class="container">
-<h2>🎉 Feest Reservering</h2>
-<label>Stad:</label>
-<select id="stad"><option>Amsterdam</option><option>Rotterdam</option><option>Utrecht</option><option>Maastricht</option></select>
-<label>Datum:</label><input type="date" id="datum">
-<label>Feest naam:</label><input type="text" id="feest_naam" placeholder="Bijv. Verjaardag">
-<label>Aantal personen:</label><input type="number" id="aantal" placeholder="Bijv. 5">
-<label>Namen:</label><input type="text" id="namen" placeholder="Bijv. Ali, Omar, Sara">
-<label>Email klant (optioneel):</label><input type="email" id="customer_email" placeholder="klaar@voorbeeld.nl">
-<button onclick="verstuur()">Naar Betaling</button>
-<div id="resultaat"></div>
+    <h2>🎉 Feest Reservering</h2>
+
+    <label>Stad:</label>
+    <select id="stad">
+        <option>Amsterdam</option>
+        <option>Rotterdam</option>
+        <option>Utrecht</option>
+        <option>Maastricht</option>
+    </select>
+
+    <label>Datum:</label>
+    <input type="date" id="datum">
+
+    <label>Feest naam:</label>
+    <input type="text" id="feest_naam" placeholder="Bijv. Verjaardag">
+
+    <label>Aantal personen:</label>
+    <input type="number" id="aantal" placeholder="Bijv. 5">
+
+    <label>Namen van aanwezigen:</label>
+    <input type="text" id="namen" placeholder="Bijv. Ali, Omar, Sara">
+
+    <label>Email klant (optioneel):</label>
+    <input type="email" id="customer_email" placeholder="klaar@voorbeeld.nl">
+
+    <button onclick="verstuur()">Reserveren & Betalen</button>
+
+    <div id="resultaat"></div>
 </div>
+
 <script>
-function verstuur(){
+function verstuur() {
     const data = {
-        stad: document.getElementById('stad').value,
-        datum: document.getElementById('datum').value,
-        feest_naam: document.getElementById('feest_naam').value,
-        aantal_personen: parseInt(document.getElementById('aantal').value)||0,
-        namen: document.getElementById('namen').value,
-        customer_email: document.getElementById('customer_email').value||"",
-        betalen: "ja"
+        stad: document.getElementById("stad").value,
+        datum: document.getElementById("datum").value,
+        feest_naam: document.getElementById("feest_naam").value,
+        aantal_personen: parseInt(document.getElementById("aantal").value) || 0,
+        namen: document.getElementById("namen").value,
+        customer_email: document.getElementById("customer_email").value
     };
-    fetch('/reserveer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-    .then(r=>r.json())
-    .then(res=>{
-        if(res.status==="redirect" && res.url){ window.location.href=res.url; }
-        else{ document.getElementById('resultaat').style.display='block'; document.getElementById('resultaat').innerText=res.melding||'Er is een fout.'; }
+
+    fetch("https://adelsl924.pythonanywhere.com/reserveer", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
     })
-    .catch(e=>{ document.getElementById('resultaat').style.display='block'; document.getElementById('resultaat').innerText='Fout bij verbinding met server: '+e; });
+    .then(r => r.json())
+    .then(res => {
+        if(res.status === "redirect" && res.url) {
+            window.location.href = res.url;
+        } else {
+            document.getElementById("resultaat").style.display = "block";
+            document.getElementById("resultaat").innerText = res.melding || "Er is een fout opgetreden.";
+        }
+    })
+    .catch(err => {
+        document.getElementById("resultaat").style.display = "block";
+        document.getElementById("resultaat").innerText = "Fout bij verbinding met server: " + err;
+    });
 }
 </script>
 </body>
