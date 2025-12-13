@@ -55,7 +55,7 @@ def reserveer():
         except:
             aantal_personen = 0
         namen = data.get("namen", "")
-        totaal = aantal_personen * 150
+        totaal = aantal_personen * 35
 
         # حفظ الحجز أولاً مع الحالة "in_progress"
         save_reservation(stad, datum, feest_naam, aantal_personen, namen, totaal, "in_progress")
@@ -107,3 +107,4 @@ def failed():
 if __name__ == "__main__":
     # على PythonAnywhere لن تستخدم run، لكن محلياً يمكن تشغيله
     app.run(debug=True, port=5001)
+
