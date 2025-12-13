@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -26,55 +25,22 @@ body {
     max-width:600px;
     animation:fadeIn 0.7s ease-in-out;
 }
-@keyframes fadeIn {
-    from {opacity:0; transform:translateY(20px);}
-    to {opacity:1; transform:translateY(0);}
-}
+@keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
 h2{text-align:center;color:#e52e71;font-size:32px;margin-bottom:25px;}
 label{font-weight:600;margin-top:10px;display:block;}
-input,select,textarea {
-    width:100%;
-    padding:12px;
-    margin-top:5px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:15px;
-    transition:0.3s;
-}
-input:focus,select:focus,textarea:focus{
-    border-color:#e52e71;
-    outline:none;
-    box-shadow:0 0 5px rgba(229,46,113,0.5);
-}
-button {
-    width:100%;
-    margin-top:25px;
-    padding:15px;
-    background:linear-gradient(135deg,#ff8a00,#e52e71);
-    border:none;
-    color:white;
-    font-size:18px;
-    font-weight:600;
-    border-radius:10px;
-    cursor:pointer;
-    transition:0.3s;
-}
-button:hover{
-    transform:scale(1.05);
-    box-shadow:0 8px 25px rgba(229,46,113,0.5);
-}
-#resultaat,#succesBox{margin-top:20px;font-size:16px;font-weight:600;color:#444;text-align:center;padding:20px;border-radius:10px;display:none;}
+input,select,textarea { width:100%; padding:12px; margin-top:5px; border-radius:8px; border:1px solid #ccc; font-size:15px; transition:0.3s; }
+input:focus,select:focus,textarea:focus{ border-color:#e52e71; outline:none; box-shadow:0 0 5px rgba(229,46,113,0.5);}
+button { width:100%; margin-top:25px; padding:15px; background:linear-gradient(135deg,#ff8a00,#e52e71); border:none; color:white; font-size:18px; font-weight:600; border-radius:10px; cursor:pointer; transition:0.3s; }
+button:hover{ transform:scale(1.05); box-shadow:0 8px 25px rgba(229,46,113,0.5); }
+#resultaat,#succesBox,#summaryBox{margin-top:20px;font-size:16px;font-weight:600;color:#444;text-align:center;padding:20px;border-radius:10px;display:none;}
 #succesBox{background:#e8ffe6;border-left:6px solid #00b300;}
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-th,td{border:1px solid #ddd;padding:10px;text-align:center;}
-th{background:#e52e71;color:white;}
-tr:nth-child(even){background:#f2f2f2;}
+#summaryBox{background:#fff3cd;border-left:6px solid #ffca2c;}
 </style>
 </head>
 <body>
 
 <div class="container" id="mainForm">
-<h2>🎉 Feest Reservering</h2>
+<h2>🎉 Bevestig uw Feest Reservering</h2>
 <form id="form">
 <label>Stad:</label>
 <select id="stad">
@@ -96,11 +62,13 @@ tr:nth-child(even){background:#f2f2f2;}
 <label>Namen van aanwezigen:</label>
 <textarea id="namen" placeholder="Bijv. Ali, Omar, Sara"></textarea>
 
-<label>Betalen (Ja/Nee):</label>
-<input type="text" id="betalen" placeholder="Ja of Nee">
+<label>Email klant (optioneel, voor bevestiging):</label>
+<input type="email" id="customer_email" placeholder="bijv. klant@example.com">
 </form>
 
-<button onclick="verstuur()">Reserveer</button>
+<button onclick="toonSamenvatting()">Bekijk samenvatting & Bevestig</button>
+
+<div id="summaryBox"></div>
 <div id="resultaat"></div>
 </div>
 
@@ -112,15 +80,44 @@ tr:nth-child(even){background:#f2f2f2;}
 
 <script>
 const API_URL = "https://adelsl924.pythonanywhere.com/reserveer";
+const PRIJS_PER_PERSOON = 150;
+
+function toonSamenvatting(){
+    const stad = document.getElementById("stad").value;
+    const datum = document.getElementById("datum").value;
+    const feest_naam = document.getElementById("feest_naam").value;
+    const aantal_personen = parseInt(document.getElementById("aantal_personen").value) || 0;
+    const namen = document.getElementById("namen").value;
+    const email = document.getElementById("customer_email").value;
+
+    if(!datum || !feest_naam || !aantal_personen || !namen){
+        alert("Vul aub alle velden in.");
+        return;
+    }
+
+    const totaal = aantal_personen * PRIJS_PER_PERSOON;
+    const summaryBox = document.getElementById("summaryBox");
+    summaryBox.style.display = "block";
+    summaryBox.innerHTML = `
+        <strong>Samenvatting van uw reservering:</strong><br>
+        Stad: ${stad}<br>
+        Datum: ${datum}<br>
+        Feest naam: ${feest_naam}<br>
+        Namen: ${namen}<br>
+        Aantal personen: ${aantal_personen}<br>
+        <strong>Totaal bedrag: €${totaal}</strong><br><br>
+        <button onclick="verstuur()">Bevestig & Ga naar Betaling</button>
+    `;
+}
 
 function verstuur(){
     const data = {
         stad: document.getElementById("stad").value,
         datum: document.getElementById("datum").value,
         feest_naam: document.getElementById("feest_naam").value,
-        aantal_personen: document.getElementById("aantal_personen").value,
+        aantal_personen: parseInt(document.getElementById("aantal_personen").value) || 0,
         namen: document.getElementById("namen").value,
-        betalen: document.getElementById("betalen").value
+        customer_email: document.getElementById("customer_email").value
     };
     const resultaat = document.getElementById("resultaat");
     fetch(API_URL,{
@@ -128,15 +125,18 @@ function verstuur(){
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(data)
     }).then(r=>r.json()).then(res=>{
-        if(res.status==="succes"){
+        if(res.status==="redirect"){
+            window.location.href = res.url;
+        }else if(res.status==="succes"){
             document.getElementById("mainForm").style.display="none";
+            document.getElementById("summaryBox").style.display="none";
             document.getElementById("succesBox").style.display="block";
             document.getElementById("details").innerHTML=`
                 <strong>Stad:</strong> ${res.stad}<br>
                 <strong>Datum:</strong> ${res.datum}<br>
                 <strong>Feest naam:</strong> ${res.feest_naam}<br>
                 <strong>Namen:</strong> ${res.namen}<br>
-                <strong>Aantal personen:</strong> ${res.aantal_personen}<br>
+                <strong>Email:</strong> ${res.customer_email}<br>
                 <strong>Totaal bedrag:</strong> ${res.totaal}
             `;
         }else{
@@ -152,10 +152,11 @@ function verstuur(){
 function terugNaarForm(){
     document.getElementById("mainForm").style.display="block";
     document.getElementById("succesBox").style.display="none";
+    document.getElementById("summaryBox").style.display="none";
     document.getElementById("form").reset();
     document.getElementById("resultaat").style.display="none";
 }
 </script>
-
 </body>
 </html>
+
